@@ -23,10 +23,10 @@ func New(db *sql.DB) *RepoEvent {
 func (r *RepoEvent) Save(event dto.CreationEventDto) (int, error) {
 	var id int
 	query := fmt.Sprintf("INSERT INTO %s "+
-		"(link, deadline_date, deadline_time, description) "+
-		"VALUES ($1, $2, $3, $4) RETURNING event_id", eventsTable)
+		"(link, deadline_date, description) "+
+		"VALUES ($1, $2, $3) RETURNING event_id", eventsTable)
 
-	row := r.db.QueryRow(query, event.Link, event.DeadlineDate, event.DeadlineTime, event.Description)
+	row := r.db.QueryRow(query, event.Link, event.DeadlineDate, event.Description)
 	if err := row.Scan(&id); err != nil {
 		return 0, err
 	}
@@ -45,7 +45,7 @@ func (r *RepoEvent) AllEvents() ([]model.Event, error) {
 
 	for rows.Next() {
 		var ev model.Event
-		err := rows.Scan(&ev.EventId, &ev.Link, &ev.DeadlineDate, &ev.DeadlineTime, &ev.IsCompleted, &ev.Description)
+		err := rows.Scan(&ev.EventId, &ev.Link, &ev.DeadlineDate, &ev.IsCompleted, &ev.Description)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +60,7 @@ func (r *RepoEvent) EventById(eventId int) (model.Event, error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE event_id = $1", eventsTable)
 
 	row := r.db.QueryRow(query, eventId)
-	if err := row.Scan(&event.EventId, &event.Link, &event.DeadlineDate, &event.DeadlineTime, &event.IsCompleted, &event.Description); err != nil {
+	if err := row.Scan(&event.EventId, &event.Link, &event.DeadlineDate, &event.IsCompleted, &event.Description); err != nil {
 		return event, err
 	}
 
@@ -80,11 +80,6 @@ func (r *RepoEvent) Update(eventId int, event dto.UpdateEventDto) error {
 	if event.DeadlineDate != nil {
 		setValues = append(setValues, fmt.Sprintf("deadline_date=$%d", argId))
 		args = append(args, *event.DeadlineDate)
-		argId++
-	}
-	if event.DeadlineTime != nil {
-		setValues = append(setValues, fmt.Sprintf("deadline_time=$%d", argId))
-		args = append(args, *event.DeadlineTime)
 		argId++
 	}
 	if event.IsCompleted != nil {
@@ -112,14 +107,3 @@ func (r *RepoEvent) Delete(eventId int) error {
 	_, err := r.db.Exec(query, eventId)
 	return err
 }
-
-/*
-
-	setQuery := strings.Join(setValues, ", ")
-	query := fmt.Sprintf("UPDATE %s s SET %s FROM %s u WHERE s.id = u.share_id AND u.user_id = $%d AND u.share_id = $%d",
-		postgresql.SharesTable, setQuery, postgresql.UserShareTable, argId, argId+1)
-	args = append(args, userId, id)
-
-	_, er := r.db.Exec(query, args...)
-	return er
-*/

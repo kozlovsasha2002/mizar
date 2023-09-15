@@ -31,6 +31,9 @@ func (s *ServiceEvent) EventById(eventId int) (model.Event, error) {
 }
 
 func (s *ServiceEvent) Update(eventId int, event dto.UpdateEventDto) error {
+	if _, err := s.r.EventById(eventId); err != nil {
+		return errors.New("event with this id does not exist")
+	}
 	return s.r.Update(eventId, event)
 }
 
