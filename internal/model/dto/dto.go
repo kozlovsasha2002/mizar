@@ -1,6 +1,8 @@
 package dto
 
-import "errors"
+import (
+	"errors"
+)
 
 type CreationEventDto struct {
 	Link         string `json:"link"`
