@@ -10,6 +10,12 @@ import (
 	"os"
 )
 
+// @title Mizar API
+// @version 1.0
+// @description API server for Mizar application
+// @host localhost:8081
+// @BasePath /
+
 func main() {
 	cfg := config.Load()
 

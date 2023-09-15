@@ -3,6 +3,7 @@ package server
 import (
 	"database/sql"
 	"github.com/go-chi/chi/v5"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"mizar/internal/config"
 	"mizar/internal/handler"
 	"mizar/internal/repo"
@@ -26,6 +27,8 @@ func newRouter(storage *sql.DB) *chi.Mux {
 	r := repo.New(storage)
 	s := service.New(r)
 	h := handler.New(s)
+
+	router.Mount("/swagger", httpSwagger.WrapHandler)
 
 	router.Route("/events", func(r chi.Router) {
 		r.Get("/", h.Event.GetAllEvents)

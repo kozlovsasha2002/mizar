@@ -55,6 +55,14 @@ func (e *HandlerEvent) Create(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary GetAllEvents
+// @Description get all events
+// @Accept json
+// @Produce json
+// @Success 100 {object} []model.event
+// @Failure 500 {object} resp.ErrResponse
+// @Router /events [get]
+
 func (e *HandlerEvent) GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	events, err := e.s.Event.AllEvents()
 	if err != nil {
